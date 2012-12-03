@@ -28,6 +28,7 @@ void setup() {
   if(error != 0) // If there is an error, print it out.
     Serial.println(compass.GetErrorText(error));  
 
+  Serial.println("hello?");
   calibrateCompass();
 }
 
@@ -35,6 +36,9 @@ void loop() {
   uint8_t i;
 
   Serial.print("tick");
+
+  //forwardOne();
+  //turnNoCompass();
 
   forwardOne();
   turnRight90();
@@ -67,6 +71,27 @@ void forwardOne(){
   delay(1000);
 }
 
+void turnNoCompass(){
+  motor1.run(BACKWARD);
+  motor2.run(BACKWARD);
+  motor3.run(FORWARD);
+  motor4.run(FORWARD);
+
+  motor1.setSpeed(255);
+  motor2.setSpeed(255);
+  motor3.setSpeed(255);
+  motor4.setSpeed(255);  
+
+  delay(5000); 
+
+  motor1.run(RELEASE);
+  motor2.run(RELEASE);
+  motor3.run(RELEASE);
+  motor4.run(RELEASE);  
+
+  delay(1000); 
+}
+
 void turnRight90(){
   motor1.run(BACKWARD);
   motor2.run(BACKWARD);
@@ -80,11 +105,27 @@ void turnRight90(){
 
   float difference = 0;
   float initial_heading = getCompassHeading();
+  float last_heading = initial_heading, current_heading = initial_heading;
   while(difference < 90){
-    difference = getCompassHeading() - initial_heading;
-    if (difference < 0)
-      difference = difference + 360;
-    delay(1);
+    current_heading = getCompassHeading();
+    
+    if (abs(current_heading - last_heading) > 50)
+      current_heading = last_heading;
+      
+    if ((initial_heading > 270) && (current_heading < 90)) 
+      current_heading = current_heading + 360; 
+      
+    difference = current_heading - initial_heading; 
+
+    Serial.print("Initial: ");
+    Serial.print(initial_heading);  
+    Serial.print(", Current: ");
+    Serial.print(current_heading);  
+    Serial.print(", Difference: ");
+    Serial.println(difference);     
+
+    last_heading = current_heading;
+    delay(200);
   }  
   motor1.run(RELEASE);
   motor2.run(RELEASE);
@@ -106,7 +147,6 @@ float getCompassHeading(){
   if(heading > 2*PI)
     heading -= 2*PI;
   float headingDegrees = heading * 180/M_PI; 
-  Serial.println(headingDegrees);
   return headingDegrees;
 }
 
@@ -119,10 +159,10 @@ void calibrateCompass(){
   motor3.run(FORWARD);
   motor4.run(FORWARD);
 
-  motor1.setSpeed(50);
-  motor2.setSpeed(50);
-  motor3.setSpeed(50);
-  motor4.setSpeed(50);
+  motor1.setSpeed(255);
+  motor2.setSpeed(255);
+  motor3.setSpeed(255);
+  motor4.setSpeed(255);
 
   int num_cycles = 0;
   MagnetometerRaw raw = compass.ReadRawAxis();
@@ -130,9 +170,10 @@ void calibrateCompass(){
   float yMax = raw.YAxis, yMin = raw.YAxis;
   float prev_x = raw.XAxis;
   float prev_y = raw.YAxis;
-  while(num_cycles < 3000){
+  while(num_cycles < 300){
+    delay(100);
     raw = compass.ReadRawAxis();
-    if ((abs(prev_x - raw.XAxis) < 50) && (abs(prev_y - raw.YAxis) < 50)){
+    if ((abs(prev_x - raw.XAxis) < 50) && (abs(prev_y - raw.YAxis) < 50) && (raw.XAxis < 1000) && (raw.YAxis < 1000)){
       if (raw.XAxis > xMax) xMax = raw.XAxis;
       if (raw.XAxis < xMin) xMin = raw.XAxis;
       if (raw.YAxis > yMax) yMax = raw.YAxis;
