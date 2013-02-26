@@ -7,7 +7,7 @@
 
 // converts a float into a char 
 // and sends it via nRF24L01
-void transmit( float v)
+/*void transmit( float v)
 {
   byte c; 
   char buf[10];
@@ -47,7 +47,7 @@ void transmitlf(void)
   c = '\n';
   Mirf.send(&c);
   while( Mirf.isSending() ) ;
-}
+}*/
 byte token = 45;
 char message[] = "hello";
 void setup()
@@ -104,8 +104,6 @@ void loop()
 
   // ... just take your time
   delay(100);
-  Serial.print("Sent token: ");
-  Serial.println(token-1,DEC);
 }
 
 

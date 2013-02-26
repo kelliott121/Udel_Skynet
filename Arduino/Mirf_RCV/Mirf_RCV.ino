@@ -43,9 +43,12 @@ void loop()
 
     // ... and write it out to the PC
     //if (c == 45)
-    for (int i = 0; c[i] != 0; i++)
+    /*for (int i = 0; c[i] != 0; i++)
      Serial.print((char)c[i]);
-    Serial.println();
+    Serial.println();*/
+    if (!strcmp((char*)c,"hello")){
+     Serial.println("Received hello"); 
+    }
      //Serial.println("Received Data");
   }
 }
