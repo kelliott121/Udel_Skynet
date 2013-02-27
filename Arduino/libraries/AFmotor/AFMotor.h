@@ -135,7 +135,7 @@
 */
 
 // Arduino pin names for interface to 74HCT595 latch
-#define MOTORLATCH 12
+#define MOTORLATCH 10
 #define MOTORCLK 4
 #define MOTORENABLE 7
 #define MOTORDATA 8
