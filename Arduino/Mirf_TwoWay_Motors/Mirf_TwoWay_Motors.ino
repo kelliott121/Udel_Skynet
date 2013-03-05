@@ -1,3 +1,5 @@
+#include <AFMotor.h>
+
 #include <MirfSpiDriver.h>
 #include <Mirf.h>
 #include <MirfHardwareSpiDriver.h>
@@ -9,8 +11,12 @@
 char message[] = "token";
 char ack[] = "gotit";
 //boolean token = true;
-boolean token = true;
+boolean token = false;
 byte c[6];
+
+AF_DCMotor motor3(3);
+AF_DCMotor motor4(4);
+
 void setup()
 {
   // init the transceiver
@@ -39,6 +45,7 @@ void loop()
 {
   if (token){
     Serial.println("+");
+    runForward();
     Mirf.send((byte*)message);
     while( Mirf.isSending() );
     Serial.println("Sent Token");
@@ -60,6 +67,7 @@ void loop()
     else if (!strcmp((char*)c, "gotit")){
       token = false;
       Serial.println("Got ACK");
+      runStop();
     }
   }
 
@@ -67,6 +75,17 @@ void loop()
   delay(500);
 }
 
+void runForward(){
+  motor3.run(FORWARD);
+  motor4.run(FORWARD);
+  motor3.setSpeed(255);
+  motor4.setSpeed(255);
+}
+
+void runStop(){
+  motor3.setSpeed(0);
+  motor4.setSpeed(0);
+}
 
 
 
