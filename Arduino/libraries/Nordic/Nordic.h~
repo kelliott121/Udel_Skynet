@@ -1,0 +1,25 @@
+/*
+Nordic.h - Wrapper library to customize Mirf for our swarm purposes
+Author: Keith Elliott
+Date: 3/6/13
+*/
+
+#ifndef Nordic_h
+#define Nordic_h
+
+#include "Arduino.h"
+#include "Packet.h"
+#include <MirfSpiDriver.h>
+#include <Mirf.h>
+#include <MirfHardwareSpiDriver.h>
+#include <nRF24L01.h>
+#include <SPI.h>
+
+class Nordic{
+ public:
+  Nordic();
+
+  
+};
+
+#endif

@@ -1,0 +1,11 @@
+/*
+Nordic.cpp - Wrapper library to customize Mirf for our swarm purposes
+Author: Keith Elliott
+Date: 3/6/13
+*/
+
+#include "Nordic.h"
+
+Nordic::Nordic(){
+  
+}
