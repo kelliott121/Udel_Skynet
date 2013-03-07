@@ -75,18 +75,19 @@ Packet Nordic::waitForCommand(long timeout){
       Packet packet(ack);
       Serial.print("Packet type: ");
       Serial.println(packet.getType());
-      if (packet.getType() == COMMAND){
+      //if (packet.getType() == COMMAND){
 	Serial.println("Received a Command Packet");
 	sendACK(packet);
 	return packet;
-      }
+	//}
     }
     
     delay(100);
     timeout-=100;
     
     if (timeout == 0){
-      Packet pkt;
+      byte nullpkt[6] = {NULLDATA, NULLDATA, NULLDATA, NULLDATA, NULLDATA, NULLDATA};
+      Packet pkt(nullpkt);
       Serial.println("Timeout reached");
       return pkt;
     }
