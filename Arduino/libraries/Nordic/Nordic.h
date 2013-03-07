@@ -36,6 +36,8 @@ class Nordic{
 
   //Define the different types of send
   bool sendCommand(byte target, byte direction, byte time);
+  Packet waitForCommand(long timeout);
+
   bool passToken();
   void sendACK(Packet packet);
   bool startSonic();

@@ -23,7 +23,7 @@ Nordic::Nordic(byte newID){
   Mirf.configRegister(RF_SETUP, 0x06);
 
   Mirf.setTADDR((byte*)BROADCAST);
-  Mirf.setRADDR((byte*)ID);
+  Mirf.setRADDR((byte*)BROADCAST);
 }
 
 bool Nordic::sendCommand(byte target, byte direction, byte time){
@@ -31,14 +31,16 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
   Packet packet(seq_num, target, ID, COMMAND, data);
   
   byte taddr[5] = {0, 0, 0, 0, target};
-  Mirf.setTADDR(taddr);
+  //Mirf.setTADDR(taddr);
 
   bool gotACK = false;
 
   for (int t=TIMEOUT; t>=0 && !gotACK; t--){
     Mirf.send(packet.pack());
     while (Mirf.isSending());
-    
+    Serial.println("Sent packet");
+    Serial.print("Of type: ");
+    Serial.println(packet.getType());
     byte ack[sizeof(Packet)];
     for (int i = 5; i >= 0; i--){
       if (Mirf.dataReady()){
@@ -63,12 +65,40 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
   return gotACK;
 }
 
+Packet Nordic::waitForCommand(long timeout){
+  Serial.println("Waiting for command");
+  while (1){
+    if (Mirf.dataReady()){
+      Serial.println("Packet is here");
+      byte ack[sizeof(Packet)];
+      Mirf.getData(ack);
+      Packet packet(ack);
+      Serial.print("Packet type: ");
+      Serial.println(packet.getType());
+      if (packet.getType() == COMMAND){
+	Serial.println("Received a Command Packet");
+	sendACK(packet);
+	return packet;
+      }
+    }
+    
+    delay(100);
+    timeout-=100;
+    
+    if (timeout == 0){
+      Packet pkt;
+      Serial.println("Timeout reached");
+      return pkt;
+    }
+  }
+}
+
 void Nordic::sendACK(Packet packet){
   byte data[2] = {0,0};
   Packet ack(packet.getSequenceNumber(), packet.getSourceId(), ID, ACK, data);
 
   byte taddr[5] = {0,0,0,0,packet.getSourceId()};
-  Mirf.setTADDR(taddr);
+  //Mirf.setTADDR(taddr);
 
   Mirf.send(ack.pack());
   while (Mirf.isSending());
