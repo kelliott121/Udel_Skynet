@@ -25,6 +25,15 @@ Packet::Packet(byte seqNum, byte tid, byte sid, byte t, byte d[2]){
   data[1] = d[1];
 }
 
+Packet::Packet(byte pkt[6]){
+  sequenceNumber = pkt[0];
+  targetId = pkt[1];
+  sourceId = pkt[2];
+  type = pkt[3];
+  data[0] = pkt[4];
+  data[1] = pkt[5];
+}
+
 byte * Packet::pack(){
   byte pack[6] = {sequenceNumber, targetId, sourceId, type, data[0], data[1]};
   return pack;

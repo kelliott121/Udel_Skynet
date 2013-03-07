@@ -33,8 +33,34 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
   byte taddr[5] = {0, 0, 0, 0, target};
   Mirf.setTADDR(taddr);
 
-  Mirf.send(packet.pack());
-  while (Mirf.isSending());
+  bool gotACK = false;
+
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+    }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	gotACK = true;
+      }
+    }
+  }
+  
+  return gotACK;
 }
 
 void Nordic::sendACK(Packet packet){

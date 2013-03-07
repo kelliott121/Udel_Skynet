@@ -21,6 +21,7 @@ class Packet{
  public:
   Packet();
   Packet(byte seqNum, byte tid, byte sid, byte t, byte d[2]);
+  Packet(byte pkt[6]);
 
   byte * pack();
 
