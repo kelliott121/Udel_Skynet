@@ -15,7 +15,7 @@ Nordic::Nordic(byte newID){
   Mirf.spi = &MirfHardwareSpi;
   Mirf.init();
 
-  Mirf.payload = sizeof(Packet);
+  Mirf.payload = SIZE;
   Mirf.channel = 0;
   Mirf.config();
 
@@ -39,8 +39,9 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
     Mirf.send(packet.pack());
     while (Mirf.isSending());
     Serial.println("Sent packet");
-    Serial.print("Of type: ");
-    Serial.println(packet.getType());
+    //Serial.print("Of type: ");
+    //Serial.println(packet.getType());
+    packet.print(DEC);
     byte ack[sizeof(Packet)];
     for (int i = 5; i >= 0; i--){
       if (Mirf.dataReady()){
@@ -57,6 +58,7 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
 	  ackPacket.getSourceId() == packet.getTargetId() &&
 	  ackPacket.getTargetId() == packet.getSourceId() &&
 	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
 	gotACK = true;
       }
     }
@@ -73,10 +75,12 @@ Packet Nordic::waitForCommand(long timeout){
       byte ack[sizeof(Packet)];
       Mirf.getData(ack);
       Packet packet(ack);
-      Serial.print("Packet type: ");
-      Serial.println(packet.getType());
+
+      packet.print(DEC);
+      //Serial.print("Packet type: ");
+      //Serial.println(packet.getType());
       //if (packet.getType() == COMMAND){
-	Serial.println("Received a Command Packet");
+      //Serial.println("Received a Command Packet");
 	sendACK(packet);
 	return packet;
 	//}
@@ -85,7 +89,7 @@ Packet Nordic::waitForCommand(long timeout){
     delay(100);
     timeout-=100;
     
-    if (timeout == 0){
+    if (timeout <= 0){
       byte nullpkt[6] = {NULLDATA, NULLDATA, NULLDATA, NULLDATA, NULLDATA, NULLDATA};
       Packet pkt(nullpkt);
       Serial.println("Timeout reached");

@@ -11,7 +11,7 @@
 char message[] = "token";
 char ack[] = "gotit";
 //boolean token = true;
-boolean token = false;
+boolean token = true;
 byte c[6];
 
 AF_DCMotor motor3(3);
@@ -72,7 +72,7 @@ void loop()
   }
 
   // ... just take your time
-  delay(500);
+  delay(5000);
 }
 
 void runForward(){

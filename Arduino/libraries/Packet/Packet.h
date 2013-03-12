@@ -25,6 +25,7 @@ class Packet{
   Packet(byte pkt[6]);
 
   byte * pack();
+  void print(int format);
 
   void setSequenceNumber(byte seqNum);
   void setTargetId(byte id);

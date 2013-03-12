@@ -27,6 +27,7 @@ Date: 3/6/13
 
 //The number of times the device should try to send a message
 #define TIMEOUT 10
+#define SIZE 6
 
 class Nordic{
  public:
