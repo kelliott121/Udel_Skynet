@@ -26,7 +26,7 @@ class Robot(object):
     def __init__(self):
         self.serial = None
         try:
-            self.serial = serial.Serial('/dev/ttyACM0', 9600)
+            self.serial = serial.Serial('/dev/ttyACM1', 9600)
             print "Serial connection successful"
         except SerialException, e:
             print "Serial connection failed"
