@@ -49,6 +49,24 @@ void Distance::send_ir_sonar_pulse()
 
 }
 
+void Distance::test_init(){
+  TCCR2A = _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
+  TCCR2B = _BV(WGM22) | _BV(CS20);
+  OCR2A = B11000111;
+}
+
+int Distance::test_loop(){
+  //digitalWrite(A1, HIGH);
+  //delayMicroseconds(500);
+  //digitalWrite(A1, LOW);
+  long duration, distance;
+  delay(250);
+  setShift(B10000000, 500);
+  duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
+  distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
+  return (int)distance;
+}
+
 ///////////////////////
 // Internal functions
 ///////////////////////
@@ -60,13 +78,14 @@ int Distance::checkModule(uint8_t module)
   duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
   distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
   stopPwm();
+  delay(250);
   return (int)distance;
 }
 
 ///////////////////////
 // Shift Register 
 ///////////////////////
-void Distance::setShift(uint8_t val, uint8_t micro)
+void Distance::setShift(uint8_t val, int micro)
 {
   uint8_t high_bit = 1;
   //Shift values in
@@ -97,9 +116,9 @@ void Distance::disableOutput()
 
 void Distance::shiftOnce()
 {
-  delay(1);
+  delayMicroseconds(10);
   digitalWrite(SHIFT_CLK_PIN, HIGH);
-  delay(1);
+  delayMicroseconds(10);
   digitalWrite(SHIFT_CLK_PIN, LOW);		 
 }
 

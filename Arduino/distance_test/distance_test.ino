@@ -8,21 +8,24 @@
 Distance dist = Distance();
 
 void setup() {    
-  Serial.begin(9600);     
+  Serial.begin(9600); 
+  //dist.test_init();
 }
 
 void loop() { 
-  delay(1000); 
   int f = dist.check_front();
-  int l = dist.check_left();
-  int r = dist.check_right();
-  int b = dist.check_back();
   Serial.print("Front distance: ");
   Serial.println(f);
+
+  int l = dist.check_left();
   Serial.print("Left distance: ");
   Serial.println(l);
+  
+  int r = dist.check_right();
   Serial.print("Right distance: ");
   Serial.println(r);
+  
+  int b = dist.check_back();
   Serial.print("Back distance: ");
   Serial.println(b);  
 }

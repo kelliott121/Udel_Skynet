@@ -34,18 +34,18 @@ class Distance
 	  int check_right();
 	  int check_back();
 	  void send_ir_sonar_pulse();
+	  void test_init();
+	  int test_loop();
 
 	protected:
 	  int checkModule(uint8_t module);
 	  //Shift Register
-	  void setShift(uint8_t val, uint8_t micro);
+	  void setShift(uint8_t val, int micro);
 	  void enableOutput();
 	  void disableOutput();
 	  void shiftOnce();
 	  //PWM
 	  void startPwm();
 	  void stopPwm();
-
-	  //private:
 };
 #endif
