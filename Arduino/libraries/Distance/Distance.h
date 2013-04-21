@@ -7,14 +7,14 @@
 
 #include <Arduino.h>
 
-#define SHIFT_SER_PIN A0
-#define SHIFT_OE_PIN A1
-#define SHIFT_CLK_PIN A2
+#define SHIFT_SER_PIN A3
+#define SHIFT_OE_PIN A2
+#define SHIFT_CLK_PIN A1
 
 #define PWM_PIN 11
 
 #define IR_RECEIVE_PIN 2
-#define ULTRASOUND_RECEIVE_PIN 3
+#define ULTRASOUND_RECEIVE_PIN A0
 
 #define FS_BIT B10000000
 #define LS_BIT B01000000
