@@ -10,6 +10,7 @@ Distance dist = Distance();
 void setup() {    
   Serial.begin(9600); 
   //dist.test_init();
+  attachInterrupt(0, receive_ir, FALLING);
 }
 
 void loop() { 
@@ -17,7 +18,7 @@ void loop() {
   Serial.print("Front distance: ");
   Serial.println(f);
 
-  int l = dist.check_left();
+  /*int l = dist.check_left();
   Serial.print("Left distance: ");
   Serial.println(l);
   
@@ -27,5 +28,16 @@ void loop() {
   
   int b = dist.check_back();
   Serial.print("Back distance: ");
-  Serial.println(b);  
+  Serial.println(b);  */
+  delay(1000);
+}
+
+void receive_ir(){
+
+  long duration, distance;
+  dist.setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT, PULSE_TIME);
+  duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
+  distance = (.13077*pow(duration, 1-.2421)*2);
+  Serial.print("Distance: ");
+  Serial.println(distance);
 }
