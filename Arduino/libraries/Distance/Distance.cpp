@@ -19,6 +19,8 @@ Distance::Distance()
   digitalWrite(SHIFT_OE_PIN, HIGH);
   digitalWrite(SHIFT_CLK_PIN, LOW);
   //Initialize variables
+
+  
 }
 
 ///////////////////////
@@ -46,7 +48,7 @@ int Distance::check_back()
 
 void Distance::send_ir_sonar_pulse()
 {
-
+  checkModule(FS_BIT | LS_BIT | RS_BIT | BS_BIT | IR_BIT);
 }
 
 void Distance::test_init(){
@@ -67,6 +69,15 @@ int Distance::test_loop(){
   return (int)distance;
 }
 
+void receive_ir(){
+  long duration, distance;
+  setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT, PULSE_TIME);
+  duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
+  distance = (.13077*pow(duration, 1-.2421)*2);
+  Serial.print("Distance: ");
+  Serial.println(distance);
+}
+
 ///////////////////////
 // Internal functions
 ///////////////////////
@@ -74,9 +85,10 @@ int Distance::checkModule(uint8_t module)
 {
   long duration, distance;
   startPwm();
-  setShift(module, 500);
+  setShift(module, PULSE_TIME);
   duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
-  distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
+  //distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
+  distance = (.13077*pow(duration,1-.2421));
   stopPwm();
   delay(250);
   return (int)distance;

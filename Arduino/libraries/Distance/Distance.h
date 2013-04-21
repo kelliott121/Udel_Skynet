@@ -22,8 +22,12 @@
 #define BS_BIT B00010000
 #define IR_BIT B00001000
 
-#define CM_PER_MICROSECOND .034
-#define FIXED_OFFSET 0
+//#define CM_PER_MICROSECOND .034
+
+#define CM_PER_MICROSECOND .01401
+
+#define FIXED_OFFSET 10.729
+#define PULSE_TIME 500
 
 class Distance
 {
@@ -36,6 +40,7 @@ class Distance
 	  void send_ir_sonar_pulse();
 	  void test_init();
 	  int test_loop();
+	  void receive_ir();
 
 	protected:
 	  int checkModule(uint8_t module);
