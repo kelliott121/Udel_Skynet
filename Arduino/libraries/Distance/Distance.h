@@ -41,11 +41,13 @@ class Distance
 	  void test_init();
 	  int test_loop();
 	  void receive_ir();
+	  //ISR (INT0_vect);
+	  void setShift(uint8_t val, int micro);
 
 	protected:
 	  int checkModule(uint8_t module);
 	  //Shift Register
-	  void setShift(uint8_t val, int micro);
+	  
 	  void enableOutput();
 	  void disableOutput();
 	  void shiftOnce();

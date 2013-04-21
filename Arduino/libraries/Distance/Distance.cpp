@@ -20,7 +20,11 @@ Distance::Distance()
   digitalWrite(SHIFT_CLK_PIN, LOW);
   //Initialize variables
 
-  
+  //attachInterrupt(0, receive_ir, FALLING);
+  //EICRA |= (1 << ISC01);    // set INT0 to trigger on ANY logic change
+  //EIMSK |= (1 << INT0);     // Turns on INT0
+  //sei();                    // turn on interrupts
+
 }
 
 ///////////////////////
@@ -69,7 +73,9 @@ int Distance::test_loop(){
   return (int)distance;
 }
 
-void receive_ir(){
+
+void Distance::receive_ir(){
+
   long duration, distance;
   setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT, PULSE_TIME);
   duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
@@ -77,6 +83,11 @@ void receive_ir(){
   Serial.print("Distance: ");
   Serial.println(distance);
 }
+
+
+/*ISR (INT0_vect){
+  receive_ir();
+  }*/
 
 ///////////////////////
 // Internal functions
