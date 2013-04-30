@@ -17,18 +17,21 @@ void loop() {
   int f = dist.check_front();
   Serial.print("Front distance: ");
   Serial.println(f);
+  delay(1000);
 
-  /*int l = dist.check_left();
+  int l = dist.check_left();
   Serial.print("Left distance: ");
   Serial.println(l);
+  delay(1000);
   
   int r = dist.check_right();
   Serial.print("Right distance: ");
   Serial.println(r);
+  delay(1000);
   
   int b = dist.check_back();
   Serial.print("Back distance: ");
-  Serial.println(b);  */
+  Serial.println(b);  
   delay(1000);
 }
 

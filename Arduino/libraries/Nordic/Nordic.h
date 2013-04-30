@@ -14,6 +14,7 @@ Date: 3/6/13
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
 #include <SPI.h>
+#include "Conversation.h"
 
 //The Mirf CSN and CE pins are hardcoded on the shield we soldered
 #define CSN 3;
@@ -38,15 +39,20 @@ class Nordic{
   //Define the different types of send
   bool sendCommand(byte target, byte direction, byte time);
   Packet waitForCommand(long timeout);
+  Packet waitForToken(long timeout);
 
-  bool passToken();
+  bool passToken(byte target);
   void sendACK(Packet packet);
   bool startSonic();
   bool requestData();
+  bool hasToken();
+  void giveToken();
 
  private:
   byte ID;
-  byte seq_num;
+  //byte seq_num;
+  Conversation * conversation;
+  bool token;
 };
 
 #endif

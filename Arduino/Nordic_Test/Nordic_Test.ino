@@ -1,3 +1,5 @@
+#include <Conversation.h>
+
 #include <SPI.h>
 
 #include <MirfSpiDriver.h>
@@ -9,8 +11,8 @@
 
 #include <Nordic.h>
 
-//byte id = 0;
-byte id = 1;
+byte id = 0;
+//byte id = 1;
 
 Nordic nord(id);
 
