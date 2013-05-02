@@ -63,6 +63,7 @@ bool Nordic::passToken(byte target){
 	    ackPacket.getType() == ACK){
 	  Serial.println("Got ACK");
 	  gotACK = true;
+	  token = false;
 	}
       }
     }
@@ -157,9 +158,10 @@ Packet Nordic::waitForToken(long timeout){
       Mirf.getData(ack);
       Packet packet(ack);
 
-      if (conversation->update(packet)){
+      if (conversation->update(packet) && packet.getTargetId() == ID){
 	packet.print(DEC);
 	sendACK(packet);
+	token = true;
 	return packet;
       }
       Serial.println("Duplicate");
