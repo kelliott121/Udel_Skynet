@@ -1,0 +1,26 @@
+/*
+Conversation.cpp - Library to represent a conversation between two robots
+Author: Keith Elliott
+Date: 4/23/13
+*/
+
+#include "Conversation.h"
+
+Conversation::Conversation(){
+  sourceId = -1;
+  targetId = -1;
+  seq_num = -1;
+}
+
+//Returns true if the packet is not a duplicate
+bool Conversation::update(Packet pkt){
+  bool dirty = false;
+  if (pkt.getSourceId() != sourceId || pkt.getTargetId() != targetId || pkt.getSequenceNumber() != seq_num){
+    dirty = true;
+    
+    sourceId = pkt.getSourceId();
+    targetId = pkt.getTargetId();
+    seq_num = pkt.getSequenceNumber();
+  }
+  return dirty;
+}

@@ -1,0 +1,14 @@
+/*
+Drive.h - Wrapper library to simplify the usage of the AFMotor libraries
+Author: Keith Elliott
+Date: 4/25/13
+*/
+
+#include "Drive.h"
+
+Drive::Drive(){
+  left = new AF_DCMotor(3);
+  right = new AF_DCMotor(4);
+  left->setSpeed(0);
+  right->setSpeed(0);
+}
