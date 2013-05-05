@@ -2,8 +2,19 @@
 #include <Wire.h>
 #include <HMC5883L.h>
 
-AF_DCMotor motor1(1);
-AF_DCMotor motor2(2);
+#define DEBUG 0
+#define THRESHOLD 5
+
+#define TURNING_DELAY 50
+#define TURNING_SPEED 255
+#define MAX_TURNS 500
+
+#define STRAIGHT_DELAY 10
+#define STRAIGHT_SPEED 255
+#define STRAIGHT_ITERATIONS 500
+
+#define COMPASS_READS_DELAY 100
+
 AF_DCMotor motor3(3);
 AF_DCMotor motor4(4);
 
@@ -17,129 +28,115 @@ float Yoff = 0;
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
-  Serial.println("Beginning test!");
-  
-  Serial.println("Starting the I2C interface.");
   Wire.begin(); // Start the I2C interface.
-
-  Serial.println("Constructing new HMC5883L");
   compass = HMC5883L(); // Construct a new HMC5883 compass.
-  
-  Serial.println("Setting measurement mode to continous.");
   error = compass.SetMeasurementMode(Measurement_Continuous); // Set the measurement mode to Continuous
   if(error != 0) // If there is an error, print it out.
     Serial.println(compass.GetErrorText(error));  
-
-  Serial.println("Calibrating compass");
   calibrateCompass();
-  
+  delay(5000);
 }
 
 void loop() {
-
-  delay(5000);
-  
-  float heading = getCompassHeading();
-
-  Serial.print("Heading = ");
-  Serial.println(heading);
-
-  //forwardOne();
-  //turnNoCompass();
-
-  //forwardOne();
-  //turnRight90();
-  //forwardOne();
-  //turnRight90();
-  //forwardOne();
-  //turnRight90();
-  //forwardOne();
-  //turnRight90();
-}
-
-void forwardOne(){
-  motor1.run(FORWARD);
-  motor2.run(FORWARD);
-  motor3.run(FORWARD);
-  motor4.run(FORWARD);
-
-  motor1.setSpeed(255);
-  motor2.setSpeed(255);
-  motor3.setSpeed(255);
-  motor4.setSpeed(255);
-
-  delay(5000);
-  
-  motor1.run(RELEASE);
-  motor2.run(RELEASE);
-  motor3.run(RELEASE);
-  motor4.run(RELEASE);
-
+  straight_with_correction();
+  delay(1000);
+  turn(180);
+  delay(1000);
+  straight_with_correction();
+  delay(1000);
+  turn(180);
   delay(1000);
 }
 
-void turnNoCompass(){
-  motor1.run(BACKWARD);
-  motor2.run(BACKWARD);
-  motor3.run(FORWARD);
-  motor4.run(FORWARD);
-
-  motor1.setSpeed(255);
-  motor2.setSpeed(255);
-  motor3.setSpeed(255);
-  motor4.setSpeed(255);  
-
-  delay(5000); 
-
-  motor1.run(RELEASE);
-  motor2.run(RELEASE);
-  motor3.run(RELEASE);
-  motor4.run(RELEASE);  
-
-  delay(1000); 
+void turn(float num_degrees){
+  float heading = getCompassHeading();
+  heading += num_degrees;
+  if(heading > 360)
+    heading -= 360;
+  turn_to_orientation(heading);
 }
 
-void turnRight90(){
-  motor1.run(BACKWARD);
-  motor2.run(BACKWARD);
-  motor3.run(FORWARD);
-  motor4.run(FORWARD);
+void turn_to_orientation(float desired_heading){
 
-  motor1.setSpeed(255);
-  motor2.setSpeed(255);
-  motor3.setSpeed(255);
-  motor4.setSpeed(255);
+  float current_heading = getCompassHeading();
+  int diff_from_desired = heading_difference(current_heading, desired_heading);
+  int turns = 0;
 
-  float difference = 0;
-  float initial_heading = getCompassHeading();
-  float last_heading = initial_heading, current_heading = initial_heading;
-  while(difference < 90){
-    current_heading = getCompassHeading();
-    
-    if (abs(current_heading - last_heading) > 50)
-      current_heading = last_heading;
-      
-    if ((initial_heading > 270) && (current_heading < 90)) 
-      current_heading = current_heading + 360; 
-      
-    difference = current_heading - initial_heading; 
-
-    Serial.print("Initial: ");
-    Serial.print(initial_heading);  
-    Serial.print(", Current: ");
-    Serial.print(current_heading);  
-    Serial.print(", Difference: ");
-    Serial.println(difference);     
-
-    last_heading = current_heading;
-    delay(200);
+  if(DEBUG){
+    Serial.print("Attempting to turn to: ");
+    Serial.println(desired_heading);
+    Serial.print("Starting heading: ");
+    Serial.println(current_heading); 
+    Serial.print("Diff from desired: ");
+    Serial.println(diff_from_desired);  
   }  
-  motor1.run(RELEASE);
-  motor2.run(RELEASE);
-  motor3.run(RELEASE);
-  motor4.run(RELEASE);  
+  
+  while(diff_from_desired > THRESHOLD && turns < MAX_TURNS){ 
+   
+    turns++;
+    
+    if(difference_is_ccw(current_heading, desired_heading)){
+      motor3.run(BACKWARD);
+      motor4.run(FORWARD);      
+    }
+    else{
+      motor3.run(FORWARD);
+      motor4.run(BACKWARD);
+    }
+    motor3.setSpeed(TURNING_SPEED);
+    motor4.setSpeed(TURNING_SPEED);
+    
+    delay(TURNING_DELAY);  
+   
+    motor3.run(RELEASE);
+    motor4.run(RELEASE); 
+  
+    if(TURNING_DELAY < COMPASS_READS_DELAY)
+      delay(COMPASS_READS_DELAY - TURNING_DELAY);
 
-  delay(1000);  
+    current_heading = getCompassHeading();
+    diff_from_desired = heading_difference(current_heading, desired_heading); 
+  
+    if(DEBUG){  
+      Serial.print("Current heading: ");
+      Serial.println(current_heading);  
+      Serial.print("Diff from desired: ");
+      Serial.println(diff_from_desired); 
+    } 
+  }
+  
+  if(DEBUG){
+    Serial.print("Final heading: ");
+    Serial.println(getCompassHeading());
+  }  
+}
+
+int heading_difference(float current, float desired){
+  int diff = ((int)(desired-current+3600))%360;
+  return diff <= 180 ? diff : 360 - diff;
+}
+
+boolean difference_is_ccw(float current, float desired){
+  float diff = desired - current; 
+  return diff > 0 ? diff > 180 : diff >= -180;
+}
+
+void straight_with_correction(){
+  
+  float start_heading = getCompassHeading();
+  
+  for(int i=0; i<STRAIGHT_ITERATIONS; i++){
+    
+    motor3.run(BACKWARD);
+    motor4.run(BACKWARD);
+    motor3.setSpeed(STRAIGHT_SPEED);
+    motor4.setSpeed(STRAIGHT_SPEED);
+    delay(STRAIGHT_DELAY); 
+    motor3.run(RELEASE);
+    motor4.run(RELEASE); 
+    
+    turn_to_orientation(start_heading);
+  }
 }
 
 float getCompassHeading(){
@@ -147,8 +144,6 @@ float getCompassHeading(){
   float x = (raw.XAxis * Xsf) + Xoff;
   float y = (raw.YAxis * Ysf) + Yoff;
   float heading = atan2(y, x);
-  //float declinationAngle = 0.0457;
-  //heading += declinationAngle;
   if(heading < 0)
     heading += 2*PI;
   if(heading > 2*PI)
@@ -159,13 +154,14 @@ float getCompassHeading(){
 
 void calibrateCompass(){
 
-  Serial.println("Beginning calibration");
+  if(DEBUG)
+    Serial.println("Beginning calibration");
+ 
+  motor3.run(BACKWARD);
+  motor4.run(FORWARD);
   
-  motor3.run(FORWARD);
-  motor4.run(BACKWARD);
-  
-  motor3.setSpeed(255);
-  motor4.setSpeed(255);
+  motor3.setSpeed(225);
+  motor4.setSpeed(225);
 
   int num_cycles = 0;
   MagnetometerRaw raw = compass.ReadRawAxis();
@@ -174,24 +170,28 @@ void calibrateCompass(){
   float prev_x = raw.XAxis;
   float prev_y = raw.YAxis;
   
-  while(num_cycles < 300){
-    delay(100);
+  while(num_cycles < 100){
+    delay(COMPASS_READS_DELAY);
     raw = compass.ReadRawAxis();
     if ((abs(prev_x - raw.XAxis) < 50) && (abs(prev_y - raw.YAxis) < 50) && (raw.XAxis < 1000) && (raw.YAxis < 1000)){
       if (raw.XAxis > xMax) xMax = raw.XAxis;
       if (raw.XAxis < xMin) xMin = raw.XAxis;
       if (raw.YAxis > yMax) yMax = raw.YAxis;
       if (raw.YAxis < yMin) yMin = raw.YAxis;
-      Serial.print("Raw x: ");
-      Serial.print(raw.XAxis);
-      Serial.print(", Raw y: ");
-      Serial.println(raw.YAxis);
+      if(DEBUG){
+        Serial.print("Raw x: ");
+        Serial.print(raw.XAxis);
+        Serial.print(", Raw y: ");
+        Serial.println(raw.YAxis);
+      }
     }
     else{
-      Serial.print("Outlier! Raw x: ");
-      Serial.print(raw.XAxis);
-      Serial.print(", Raw y: ");
-      Serial.println(raw.YAxis);   
+      if(DEBUG){
+        Serial.print("Outlier! Raw x: ");
+        Serial.print(raw.XAxis);
+        Serial.print(", Raw y: ");
+        Serial.println(raw.YAxis); 
+      }  
       num_cycles = num_cycles + 1;      
     }
     prev_x = raw.XAxis;
@@ -199,19 +199,51 @@ void calibrateCompass(){
     num_cycles = num_cycles + 1;
   }
   
-  motor1.run(RELEASE);
-  motor2.run(RELEASE);
+  motor3.run(FORWARD);
+  motor4.run(BACKWARD);  
+  
+  while(num_cycles < 200){
+    delay(COMPASS_READS_DELAY);
+    raw = compass.ReadRawAxis();
+    if ((abs(prev_x - raw.XAxis) < 50) && (abs(prev_y - raw.YAxis) < 50) && (raw.XAxis < 1000) && (raw.YAxis < 1000)){
+      if (raw.XAxis > xMax) xMax = raw.XAxis;
+      if (raw.XAxis < xMin) xMin = raw.XAxis;
+      if (raw.YAxis > yMax) yMax = raw.YAxis;
+      if (raw.YAxis < yMin) yMin = raw.YAxis;
+      if(DEBUG){
+        Serial.print("Raw x: ");
+        Serial.print(raw.XAxis);
+        Serial.print(", Raw y: ");
+        Serial.println(raw.YAxis);
+      }
+    }
+    else{
+      if(DEBUG){
+        Serial.print("Outlier! Raw x: ");
+        Serial.print(raw.XAxis);
+        Serial.print(", Raw y: ");
+        Serial.println(raw.YAxis);  
+      } 
+      num_cycles = num_cycles + 1;      
+    }
+    prev_x = raw.XAxis;
+    prev_y = raw.YAxis;   
+    num_cycles = num_cycles + 1;
+  }
+  
   motor3.run(RELEASE);
   motor4.run(RELEASE);    
   
-  Serial.print("Max x: ");
-  Serial.print(xMax);
-  Serial.print(", Min x: ");
-  Serial.print(xMin);
-  Serial.print(", Max y: ");
-  Serial.print(yMax);
-  Serial.print(", Min y: ");
-  Serial.println(yMin);
+  if(DEBUG){
+    Serial.print("Max x: ");
+    Serial.print(xMax);
+    Serial.print(", Min x: ");
+    Serial.print(xMin);
+    Serial.print(", Max y: ");
+    Serial.print(yMax);
+    Serial.print(", Min y: ");
+    Serial.println(yMin);
+  }
 
   if (((yMax-yMin)/(xMax-xMin)) > 1)
     Xsf = (yMax-yMin)/(xMax-xMin);
@@ -220,15 +252,16 @@ void calibrateCompass(){
   Xoff = (((xMax - xMin)/2) - xMax) * Xsf;
   Yoff = (((yMax - yMin)/2) - yMax) * Ysf;
 
-  Serial.print("X scale factor: ");
-  Serial.print(Xsf);
-  Serial.print(", Y scale factor: ");
-  Serial.println(Ysf);
-  Serial.print("X offset: ");
-  Serial.print(Xoff);
-  Serial.print(", Y offset: ");
-  Serial.println(Yoff);
-
-  Serial.println("Calibration complete");
+  if(DEBUG){
+    Serial.print("X scale factor: ");
+    Serial.print(Xsf);
+    Serial.print(", Y scale factor: ");
+    Serial.println(Ysf);
+    Serial.print("X offset: ");
+    Serial.print(Xoff);
+    Serial.print(", Y offset: ");
+    Serial.println(Yoff);
+    Serial.println("Calibration complete");
+  }
   
 }
