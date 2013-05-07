@@ -33,15 +33,19 @@ Date: 3/6/13
 class Nordic{
  public:
   Nordic(byte newID);
+  void reinit();
   
   byte autoIdentify();
 
   //Define the different types of send
   bool sendCommand(byte target, byte direction, byte time);
+  bool passToken(byte target);
+  bool sendInterDistance(byte target, int data);
+
   Packet waitForCommand(long timeout);
   Packet waitForToken(long timeout);
+  Packet waitForInterDistance(long timeout);
 
-  bool passToken(byte target);
   void sendACK(Packet packet);
   bool startSonic();
   bool requestData();

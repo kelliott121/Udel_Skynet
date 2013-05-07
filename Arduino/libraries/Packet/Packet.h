@@ -15,6 +15,12 @@ Date: 3/6/13
 #define ACK 2
 #define INIT_SONIC 3
 #define REQUEST_DATA 4
+#define REQ_INTER_DIST 5
+#define REQ_DIST_LEFT 6
+#define REQ_DIST_RIGHT 7
+#define REQ_DIST_FWD 8
+#define REQ_DIST_BWD 9
+#define INTER_DIST 10
 
 #include "Arduino.h"
 

@@ -27,6 +27,23 @@ Nordic::Nordic(byte newID){
   Mirf.setRADDR((byte*)BROADCAST);
 }
 
+void Nordic::reinit(){
+  Mirf.csnPin = CSN;
+  Mirf.cePin = CE;
+  Mirf.spi = &MirfHardwareSpi;
+  Mirf.init();
+
+  Mirf.payload = SIZE;
+  Mirf.channel = 0;
+  Mirf.config();
+
+  //Set 1Mbps data rate to slightly increase range
+  Mirf.configRegister(RF_SETUP, 0x06);
+
+  Mirf.setTADDR((byte*)BROADCAST);
+  Mirf.setRADDR((byte*)BROADCAST);
+}
+
 void Nordic::giveToken(){
   token = true;
 }
@@ -115,6 +132,51 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
   return gotACK;
 }
 
+bool Nordic::sendInterDistance(byte target, int dist){
+  byte data[2] = {(byte)(dist >> 8), (byte)(dist & 0x00FF)};
+  //Packet packet(seq_num, target, ID, COMMAND, data);
+  Packet packet(conversation->getNextSeqNum(target), target, ID, INTER_DIST, data);
+
+  conversation->update(packet);
+
+  byte taddr[5] = {0, 0, 0, 0, target};
+  //Mirf.setTADDR(taddr);
+
+  bool gotACK = false;
+  
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    //Serial.println("Sent packet");
+    //Serial.print("Of type: ");
+    //Serial.println(packet.getType());
+    //packet.print(DEC);
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+      }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
+	gotACK = true;
+      }
+    }
+  }
+
+  return gotACK;
+}
+
 Packet Nordic::waitForCommand(long timeout){
   Serial.println("Waiting for command");
   while (1){
@@ -124,7 +186,7 @@ Packet Nordic::waitForCommand(long timeout){
       Mirf.getData(ack);
       Packet packet(ack);
 
-      if (conversation->update(packet)){
+      if (conversation->update(packet) && packet.getType() == COMMAND){
 	packet.print(DEC);
 	//Serial.print("Packet type: ");
 	//Serial.println(packet.getType());
@@ -158,12 +220,47 @@ Packet Nordic::waitForToken(long timeout){
       Mirf.getData(ack);
       Packet packet(ack);
 
-      if (conversation->update(packet) && packet.getTargetId() == ID){
+      if (conversation->update(packet) && packet.getType() == TOKEN && packet.getTargetId() == ID){
 	packet.print(DEC);
 	sendACK(packet);
 	token = true;
 	return packet;
       }
+      Serial.println("Duplicate");
+    }
+    
+    delay(100);
+    timeout-=100;
+    
+    if (timeout <= 0){
+      byte nullpkt[6] = {NULLDATA, NULLDATA, NULLDATA, NULLDATA, NULLDATA, NULLDATA};
+      Packet pkt(nullpkt);
+      Serial.println("Timeout reached");
+      return pkt;
+    }
+  }
+}
+
+Packet Nordic::waitForInterDistance(long timeout){
+  Serial.println("Waiting for inter distance request");
+  while (1){
+    if (Mirf.dataReady()){
+      Serial.println("Packet is here");
+      byte ack[sizeof(Packet)];
+      Mirf.getData(ack);
+      Packet packet(ack);
+
+      if (conversation->update(packet) && packet.getTargetId() == ID && packet.getType() == INTER_DIST){
+	packet.print(DEC);
+	//Serial.print("Packet type: ");
+	//Serial.println(packet.getType());
+	//if (packet.getType() == COMMAND){
+	//Serial.println("Received a Command Packet");
+	sendACK(packet);
+	return packet;
+	//}
+      }
+      packet.print(DEC);
       Serial.println("Duplicate");
     }
     
