@@ -4,6 +4,7 @@
 
 #include <Arduino.h> 
 #include "Distance.h"
+#include <SPI.h>
 
 Distance::Distance()
 {
@@ -47,6 +48,7 @@ void Distance::send_ir_sonar_pulse()
 {
   startPwm();
   setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT | IR_BIT, PULSE_TIME);
+  delay(1000);
   stopPwm();
   //delay(250);
 }
@@ -112,6 +114,8 @@ void Distance::shiftOnce()
 ///////////////////////
 void Distance::startPwm()
 {
+  SPI.end();
+  pinMode(11, OUTPUT);
   TCCR2A = _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
   TCCR2B = _BV(WGM22) | _BV(CS20);
   OCR2A = B11000111;
@@ -121,4 +125,5 @@ void Distance::stopPwm()
 {
   TCCR2A = 0;
   TCCR2B = 0;
+  SPI.begin();
 }
