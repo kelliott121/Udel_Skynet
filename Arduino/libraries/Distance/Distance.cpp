@@ -18,13 +18,6 @@ Distance::Distance()
   digitalWrite(SHIFT_SER_PIN, LOW);
   digitalWrite(SHIFT_OE_PIN, HIGH);
   digitalWrite(SHIFT_CLK_PIN, LOW);
-  //Initialize variables
-
-  //attachInterrupt(0, receive_ir, FALLING);
-  //EICRA |= (1 << ISC01);    // set INT0 to trigger on ANY logic change
-  //EIMSK |= (1 << INT0);     // Turns on INT0
-  //sei();                    // turn on interrupts
-
 }
 
 ///////////////////////
@@ -52,42 +45,11 @@ int Distance::check_back()
 
 void Distance::send_ir_sonar_pulse()
 {
-  checkModule(FS_BIT | LS_BIT | RS_BIT | BS_BIT | IR_BIT);
+  startPwm();
+  setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT | IR_BIT, PULSE_TIME);
+  stopPwm();
+  //delay(250);
 }
-
-void Distance::test_init(){
-  TCCR2A = _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
-  TCCR2B = _BV(WGM22) | _BV(CS20);
-  OCR2A = B11000111;
-}
-
-int Distance::test_loop(){
-  //digitalWrite(A1, HIGH);
-  //delayMicroseconds(500);
-  //digitalWrite(A1, LOW);
-  long duration, distance;
-  delay(250);
-  setShift(B10000000, 500);
-  duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
-  distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
-  return (int)distance;
-}
-
-
-void Distance::receive_ir(){
-
-  long duration, distance;
-  setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT, PULSE_TIME);
-  duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
-  distance = (.13077*pow(duration, 1-.2421)*2);
-  Serial.print("Distance: ");
-  Serial.println(distance);
-}
-
-
-/*ISR (INT0_vect){
-  receive_ir();
-  }*/
 
 ///////////////////////
 // Internal functions
