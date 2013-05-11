@@ -14,8 +14,6 @@
 
 #include "AFMotor.h"
 
-
-
 static uint8_t latch_state;
 
 #if (MICROSTEPS == 8)

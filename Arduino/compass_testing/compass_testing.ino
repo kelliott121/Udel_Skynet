@@ -2,16 +2,16 @@
 #include <Wire.h>
 #include <HMC5883L.h>
 
-#define DEBUG 0
-#define THRESHOLD 5
+#define DEBUG 1
+#define THRESHOLD 15
 
 #define TURNING_DELAY 50
-#define TURNING_SPEED 255
+#define TURNING_SPEED 200
 #define MAX_TURNS 500
 
 #define STRAIGHT_DELAY 10
-#define STRAIGHT_SPEED 255
-#define STRAIGHT_ITERATIONS 500
+#define STRAIGHT_SPEED 100
+#define STRAIGHT_ITERATIONS 300
 
 #define COMPASS_READS_DELAY 100
 
@@ -38,13 +38,9 @@ void setup() {
 }
 
 void loop() {
-  straight_with_correction();
+  straight_with_correction(0);
   delay(1000);
-  turn(180);
-  delay(1000);
-  straight_with_correction();
-  delay(1000);
-  turn(180);
+  straight_with_correction(180);
   delay(1000);
 }
 
@@ -76,12 +72,12 @@ void turn_to_orientation(float desired_heading){
     turns++;
     
     if(difference_is_ccw(current_heading, desired_heading)){
-      motor3.run(BACKWARD);
-      motor4.run(FORWARD);      
+      motor3.run(FORWARD);
+      motor4.run(BACKWARD);      
     }
     else{
-      motor3.run(FORWARD);
-      motor4.run(BACKWARD);
+      motor3.run(BACKWARD);
+      motor4.run(FORWARD);
     }
     motor3.setSpeed(TURNING_SPEED);
     motor4.setSpeed(TURNING_SPEED);
@@ -121,9 +117,17 @@ boolean difference_is_ccw(float current, float desired){
   return diff > 0 ? diff > 180 : diff >= -180;
 }
 
-void straight_with_correction(){
-  
-  float start_heading = getCompassHeading();
+void straight_without_correction(){
+    motor3.run(BACKWARD);
+    motor4.run(BACKWARD);
+    motor3.setSpeed(STRAIGHT_SPEED);
+    motor4.setSpeed(STRAIGHT_SPEED);
+    delay(STRAIGHT_DELAY * STRAIGHT_ITERATIONS); 
+    motor3.run(RELEASE);
+    motor4.run(RELEASE);  
+}
+
+void straight_with_correction(float desired_heading){
   
   for(int i=0; i<STRAIGHT_ITERATIONS; i++){
     
@@ -135,7 +139,7 @@ void straight_with_correction(){
     motor3.run(RELEASE);
     motor4.run(RELEASE); 
     
-    turn_to_orientation(start_heading);
+    turn_to_orientation(desired_heading);
   }
 }
 
@@ -160,8 +164,8 @@ void calibrateCompass(){
   motor3.run(BACKWARD);
   motor4.run(FORWARD);
   
-  motor3.setSpeed(225);
-  motor4.setSpeed(225);
+  motor3.setSpeed(150);
+  motor4.setSpeed(150);
 
   int num_cycles = 0;
   MagnetometerRaw raw = compass.ReadRawAxis();
