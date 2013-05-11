@@ -25,6 +25,8 @@ Nordic::Nordic(byte newID){
 
   Mirf.setTADDR((byte*)BROADCAST);
   Mirf.setRADDR((byte*)BROADCAST);
+
+  token = false;
 }
 
 void Nordic::reinit(){
@@ -106,6 +108,216 @@ bool Nordic::sendCommand(byte target, byte direction, byte time){
     Serial.println("Sent packet");
     //Serial.print("Of type: ");
     //Serial.println(packet.getType());
+    packet.print(DEC);
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+    }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
+	gotACK = true;
+      }
+    }
+  }
+  
+  return gotACK;
+}
+
+bool Nordic::sendFwdDist(byte target, unsigned int dist){
+  byte data[2] = {(byte)(dist >> 8), (byte)(dist & 0xFF)};
+  //Packet packet(seq_num, target, ID, POS_X, coordinate);
+  Packet packet(conversation->getNextSeqNum(target), target, ID, DIST_FWD, data);
+
+  conversation->update(packet);
+
+  byte taddr[5] = {0, 0, 0, 0, target};
+  //Mirf.setTADDR(taddr);
+
+  bool gotACK = false;
+
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    Serial.println("Sent packet");
+    packet.print(DEC);
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+    }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
+	gotACK = true;
+      }
+    }
+  }
+  
+  return gotACK;
+}
+
+bool Nordic::sendBwdDist(byte target, unsigned int dist){
+  byte data[2] = {(byte)(dist >> 8), (byte)(dist & 0xFF)};
+  //Packet packet(seq_num, target, ID, POS_X, coordinate);
+  Packet packet(conversation->getNextSeqNum(target), target, ID, DIST_BWD, data);
+
+  conversation->update(packet);
+
+  byte taddr[5] = {0, 0, 0, 0, target};
+  //Mirf.setTADDR(taddr);
+
+  bool gotACK = false;
+
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    Serial.println("Sent packet");
+    packet.print(DEC);
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+    }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
+	gotACK = true;
+      }
+    }
+  }
+  
+  return gotACK;
+}
+
+bool Nordic::sendLeftDist(byte target, unsigned int dist){
+  byte data[2] = {(byte)(dist >> 8), (byte)(dist & 0xFF)};
+  //Packet packet(seq_num, target, ID, POS_X, coordinate);
+  Packet packet(conversation->getNextSeqNum(target), target, ID, DIST_LEFT, data);
+
+  conversation->update(packet);
+
+  byte taddr[5] = {0, 0, 0, 0, target};
+  //Mirf.setTADDR(taddr);
+
+  bool gotACK = false;
+
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    Serial.println("Sent packet");
+    packet.print(DEC);
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+    }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
+	gotACK = true;
+      }
+    }
+  }
+  
+  return gotACK;
+}
+
+bool Nordic::sendRightDist(byte target, unsigned int dist){
+  byte data[2] = {(byte)(dist >> 8), (byte)(dist & 0xFF)};
+  //Packet packet(seq_num, target, ID, POS_X, coordinate);
+  Packet packet(conversation->getNextSeqNum(target), target, ID, DIST_RIGHT, data);
+
+  conversation->update(packet);
+
+  byte taddr[5] = {0, 0, 0, 0, target};
+  //Mirf.setTADDR(taddr);
+
+  bool gotACK = false;
+
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    Serial.println("Sent packet");
+    packet.print(DEC);
+    byte ack[sizeof(Packet)];
+    for (int i = 5; i >= 0; i--){
+      if (Mirf.dataReady()){
+	break;
+      }
+      delay(10);
+    }
+    
+    if (Mirf.dataReady()){
+      Mirf.getData(ack);
+      Packet ackPacket(ack);
+      
+      if (ackPacket.getSequenceNumber() == packet.getSequenceNumber() &&
+	  ackPacket.getSourceId() == packet.getTargetId() &&
+	  ackPacket.getTargetId() == packet.getSourceId() &&
+	  ackPacket.getType() == ACK){
+	Serial.println("Got ACK");
+	gotACK = true;
+      }
+    }
+  }
+  
+  return gotACK;
+}
+
+bool Nordic::sendHeading(byte target, unsigned int heading){
+  byte data[2] = {(byte)(heading >> 8), (byte)(heading & 0xFF)};
+  //Packet packet(seq_num, target, ID, POS_X, coordinate);
+  Packet packet(conversation->getNextSeqNum(target), target, ID, HEADING, data);
+
+  conversation->update(packet);
+
+  byte taddr[5] = {0, 0, 0, 0, target};
+  //Mirf.setTADDR(taddr);
+
+  bool gotACK = false;
+
+  for (int t=TIMEOUT; t>=0 && !gotACK; t--){
+    Mirf.send(packet.pack());
+    while (Mirf.isSending());
+    Serial.println("Sent packet");
     packet.print(DEC);
     byte ack[sizeof(Packet)];
     for (int i = 5; i >= 0; i--){

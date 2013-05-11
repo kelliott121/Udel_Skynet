@@ -26,6 +26,8 @@ Date: 3/6/13
 #define BROADCAST "BCAST"
 #define SERVER "SERVR"
 
+#define WATCHTOWER 4
+
 //The number of times the device should try to send a message
 #define TIMEOUT 10
 #define SIZE 6
@@ -41,6 +43,12 @@ class Nordic{
   bool sendCommand(byte target, byte direction, byte time);
   bool passToken(byte target);
   bool sendInterDistance(byte target, unsigned int data);
+
+  bool sendHeading(byte target, unsigned int heading);
+  bool sendLeftDist(byte target, unsigned int dist);
+  bool sendRightDist(byte target, unsigned int dist);
+  bool sendFwdDist(byte target, unsigned int dist);
+  bool sendBwdDist(byte target, unsigned int dist);
   bool sendPosX(byte target, unsigned int coord);
   bool sendPosY(byte target, unsigned int coord);
   bool reqPos(byte target);

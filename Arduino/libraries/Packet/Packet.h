@@ -24,6 +24,11 @@ Date: 3/6/13
 #define REQ_POS 11
 #define POS_X 12
 #define POS_Y 13
+#define HEADING 14
+#define DIST_LEFT 15
+#define DIST_RIGHT 16
+#define DIST_FWD 17
+#define DIST_BWD 18
 
 #include "Arduino.h"
 
