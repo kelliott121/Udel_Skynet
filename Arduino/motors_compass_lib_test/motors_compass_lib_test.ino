@@ -12,8 +12,8 @@ void setup() {
   robot.initialize();
   robot.calibrate_compass();
   delay(15000);
-    robot.go_straight(DIR, 150);
-  /*delay(30000);
+    robot.go_straight(DIR, 20);
+  delay(30000);
     robot.go_straight(DIR, 5);
   delay(15000);
     robot.go_straight(DIR, 10);
@@ -39,7 +39,7 @@ void setup() {
     robot.go_straight(DIR, 70);
   delay(15000);
     robot.go_straight(DIR, 80);
-  delay(15000);*/
+  delay(15000);
 }
 
 void loop() {
