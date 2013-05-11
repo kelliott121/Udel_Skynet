@@ -21,6 +21,9 @@ Date: 3/6/13
 #define REQ_DIST_FWD 8
 #define REQ_DIST_BWD 9
 #define INTER_DIST 10
+#define REQ_POS 11
+#define POS_X 12
+#define POS_Y 13
 
 #include "Arduino.h"
 

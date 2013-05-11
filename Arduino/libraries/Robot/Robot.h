@@ -10,13 +10,23 @@ Date: 5/11/13
 #include "Arduino.h"
 #include "Nordic.h"
 #include "Packet.h"
-#include "Drive.h"
+//#include "Drive.h"
+#include "Motors_Compass.h"
 #include "Distance.h"
 //#include "Compass.h"
+
+#define NUM_BOTS = 4;
+
+typedef struct Position{
+  int x;
+  int y;
+} Position;
 
 class Robot{
  public:
   Robot(byte id);
+
+  void init();
   
   void waitForTurn();
   void takeTurn();
@@ -24,10 +34,12 @@ class Robot{
 
  private:
   Nordic * nordic;
-  Drive * drive;
+  //Drive * drive;
+  Motors_Compass * motors_compass;
   Distance * distance;
   //Compass * compass;
-  
+  Position position;
+  byte ID;
 };
 
 #endif

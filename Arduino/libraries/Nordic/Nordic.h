@@ -40,8 +40,12 @@ class Nordic{
   //Define the different types of send
   bool sendCommand(byte target, byte direction, byte time);
   bool passToken(byte target);
-  bool sendInterDistance(byte target, int data);
+  bool sendInterDistance(byte target, unsigned int data);
+  bool sendPosX(byte target, unsigned int coord);
+  bool sendPosY(byte target, unsigned int coord);
+  bool reqPos(byte target);
 
+  Packet waitForPacket(long timeout);
   Packet waitForCommand(long timeout);
   Packet waitForToken(long timeout);
   Packet waitForInterDistance(long timeout);
