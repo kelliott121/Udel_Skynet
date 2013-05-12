@@ -70,7 +70,7 @@ boolean Motors_Compass::difference_is_ccw(float current, float desired){
 
 void Motors_Compass::go_straight(float desired_heading, float distance){
   
-  int iterations = (int)(distance);//*1.365);
+  int iterations = (int)(distance*1.365);
 
   for(int i=0; i<iterations; i++){
     
