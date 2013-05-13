@@ -22,18 +22,15 @@ void setup() {
 void loop() { 
   Packet pkt;
   while(pkt.getSourceId() == NULLDATA){
-    
-    pkt = nord.waitForPacket(1000);
-   
-    switch (pkt.getType()) {
-      case POS_X:
-        wt.update_pos_x(pkt.getSourceId(), wt.get_packet_data(pkt));
-        break;
-      case POS_Y:
-        wt.update_pos_y(pkt.getSourceId(), wt.get_packet_data(pkt));
-        break;       
-    }  
-   
+    pkt = nord.waitForPacket(1000); 
   }
+  switch (pkt.getType()) {
+    case POS_X:
+      wt.update_pos_x(pkt.getSourceId(), wt.get_packet_data(pkt));
+      break;
+    case POS_Y:
+      wt.update_pos_y(pkt.getSourceId(), wt.get_packet_data(pkt));
+      break;       
+  }  
 }
 

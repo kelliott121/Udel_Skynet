@@ -62,8 +62,8 @@ int Distance::checkModule(uint8_t module)
   startPwm();
   setShift(module, PULSE_TIME);
   duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
-  //distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
-  distance = (.13077*pow(duration,1-.2421));
+  distance = (duration * CM_PER_MICROSECOND) + FIXED_OFFSET;
+  //distance = (.13077*pow(duration,1-.2421));
   stopPwm();
   delay(250);
   return (int)distance;

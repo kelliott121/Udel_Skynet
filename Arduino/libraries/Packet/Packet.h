@@ -30,6 +30,10 @@ Date: 3/6/13
 #define DIST_FWD 17
 #define DIST_BWD 18
 
+//Commands
+#define MOVE 19
+#define TURN 20
+
 #include "Arduino.h"
 
 class Packet{

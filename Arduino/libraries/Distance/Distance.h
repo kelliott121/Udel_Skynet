@@ -22,12 +22,10 @@
 #define BS_BIT B00010000
 #define IR_BIT B00001000
 
-//#define CM_PER_MICROSECOND .034
+#define CM_PER_MICROSECOND .01808
+#define FIXED_OFFSET 6.08328
 
-#define CM_PER_MICROSECOND .01401
-
-#define FIXED_OFFSET 10.729
-#define PULSE_TIME 500
+#define PULSE_TIME 250
 
 class Distance
 {
