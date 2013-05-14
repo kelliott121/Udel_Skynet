@@ -27,6 +27,8 @@ void Robot::init(){
   //Calibrate compass
   motors_compass->initialize();
   motors_compass->calibrate_compass();
+  delay(3000);
+  heading = motors_compass->get_compass_heading();  
 }
 
 void Robot::waitForTurn(){
@@ -55,14 +57,14 @@ void Robot::waitForTurn(){
 
 void Robot::takeTurn(){
   //Request position of other robots
-  int i;
+  /*int i;
   Packet pkt;
   for (i = ((ID+1)%NUM_BOTS); i != ID; i = ((i+1)%NUM_BOTS)){
     while (pkt.getSourceId() != NULLDATA){
       nordic->reqPos((byte)i);
       pkt = nordic->waitForPacket(5000);
     }
-  }
+    }*/
 
   int distances[4];
   //Get distances in all directions not occupied by other robots
@@ -74,23 +76,30 @@ void Robot::takeTurn(){
   //Pick direction with clockwise precedence
   //Turn towards direction
   //Travel straight in direction briefly
-  float heading = motors_compass->get_compass_heading();
-  if (distances[FRONT] > 20){
+  //float heading = motors_compass->get_compass_heading();
+  /*if (distances[FRONT] > 20){
     //GO FORWARD
-    motors_compass->go_straight(heading, DISTANCE);
+    motors_compass->go_straight(DIRECTION, DISTANCE);
   }
   else if (distances[LEFT] > 20){
     //GO LEFT
-    motors_compass->go_straight(heading-90, DISTANCE);
+    motors_compass->go_straight(DIRECTION-90, DISTANCE);
   }
   else if (distances[BACK] > 20){
     //GO BACK
-    motors_compass->go_straight(heading+180, DISTANCE);
+    motors_compass->go_straight(DIRECTION+180, DISTANCE);
   }
   else if (distances[RIGHT] > 20){
     //GO RIGHT
-    motors_compass->go_straight(heading+90, DISTANCE);
-  }
+    motors_compass->go_straight(DIRECTION+90, DISTANCE);
+    }*/
+  motors_compass->go_straight(heading, DISTANCE);
+
+  //Get Current Position
+  heading = motors_compass->get_compass_heading();
+  float rad_heading = heading * M_PI/180;
+  position.x += (int)(DISTANCE * cos(rad_heading));
+  position.y += (int)(DISTANCE * sin(rad_heading));
 
   //Send IR Sonar pulse
   //Request distances from other robots
@@ -103,14 +112,14 @@ void Robot::takeTurn(){
   distances[BACK] = distance->check_back();
   
   //Send data to watchtower
-  nordic->sendPosX(WATCHTOWER, position.x);
+  /*nordic->sendPosX(WATCHTOWER, position.x);
   nordic->sendPosY(WATCHTOWER, position.y);
   nordic->sendHeading(WATCHTOWER, (int)motors_compass->get_compass_heading());
   nordic->sendFwdDist(WATCHTOWER, distances[FRONT]);
   nordic->sendBwdDist(WATCHTOWER, distances[BACK]);
   nordic->sendLeftDist(WATCHTOWER, distances[LEFT]);
   nordic->sendRightDist(WATCHTOWER, distances[RIGHT]);
-
+  */
   //Pass token to next in line
   while (!nordic->passToken((ID+1)%NUM_BOTS));
 }

@@ -9,6 +9,8 @@
 #include <../AFmotor/AFMotor.h>
 #include <../HMC5883L/HMC5883L.h>
 #include <Wire.h>
+#include "Motors_Compass.h"
+#include "Config.h"
 
 #define THRESHOLD 1
 
@@ -18,8 +20,8 @@
 #define MAX_TURNS 100
 
 #define STRAIGHT_DELAY 75
-#define STRAIGHT_SPEED 150
-#define STRAIGHT_ITERATIONS 1000
+//#define STRAIGHT_SPEED 150
+//#define STRAIGHT_ITERATIONS 1000
 
 #define COMPASS_READS_DELAY 100
 

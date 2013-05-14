@@ -14,6 +14,7 @@ Date: 5/11/13
 #include "Motors_Compass.h"
 #include "Distance.h"
 //#include "Compass.h"
+#include "Config.h"
 
 #define NUM_BOTS 4
 #define LEFT 0
@@ -21,7 +22,8 @@ Date: 5/11/13
 #define FRONT 2
 #define BACK 3
 
-#define DISTANCE 100
+#define DIRECTION 350
+#define DISTANCE 25
 
 typedef struct Position{
   int x;
@@ -46,6 +48,7 @@ class Robot{
   //Compass * compass;
   Position position;
   byte ID;
+  float heading;
 };
 
 #endif

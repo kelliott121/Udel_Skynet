@@ -24,9 +24,9 @@
 byte id = 1;
 
 Nordic nord(id);
-Distance dist = Distance();
+Distance dist;
 
-void setup() {    
+void setup() {
   Serial.begin(9600); 
   Serial.println("Beginning test");
   //dist.test_init();
@@ -51,10 +51,10 @@ void loop() {
     unsigned int duration = 0;
     duration = duration | (data[1]<<8);
     duration = duration | data[0];
-    if (duration < 65535){
+    if (duration < 65535 && pkt.getTargetId() != NULLDATA){
       Serial.println("####################");
 
-    Serial.print("Duration = ");
+      Serial.print("Duration = ");
       Serial.println(duration);
       Serial.print("Distance ");
       double distance = ((double)duration)*0.1447 - 600.44;
@@ -73,15 +73,17 @@ void receive_ir(){
   //Serial.println("Gets here");
   dist.setShift(FS_BIT | LS_BIT | RS_BIT | BS_BIT, PULSE_TIME);
   duration = pulseIn(ULTRASOUND_RECEIVE_PIN, HIGH);
-  ////distance = (.13077*pow(duration, 1-.2421)*2);
+  //distance = (.13077*pow(duration, 1-.2421)*2);
   //Serial.print("Distance: ") ;
   //Serial.println(distance);
+  //Serial.print("Duration:");
   Serial.println(duration);
-  delay(100);
+  //delay(10);
 
-  pinMode(11, OUTPUT);
-  digitalWrite(11, LOW);
-  nord.sendInterDistance(!id, (int)duration);
+  //pinMode(11, OUTPUT);
+  //digitalWrite(11, LOW);
+  nord.sendInterDistance(!id, (unsigned int)duration);
 }
+
 
 

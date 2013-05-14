@@ -10,6 +10,8 @@ Date: 3/6/13
 
 //Define the Packet Types
 #define NULLDATA 255
+
+
 #define COMMAND 0
 #define TOKEN 1
 #define ACK 2
